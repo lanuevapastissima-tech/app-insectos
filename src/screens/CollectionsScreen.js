@@ -1,18 +1,17 @@
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StatusBar, StyleSheet, Image, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
+import { getCollections } from '../services/StorageService';
 
-const sightingsData = [
-  { id: '1', name: 'Avispa asiática', date: '2024-07-26 14:30', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD6TbDiWYFK04PpfXYwqn5RAT33QsMhxkbr_mY1Pf68F3Raur6EvxG0SurDeB14Mh92DBcFiF-Fq2DomP2tkiX_A239Z915EQTJqebgxzZjgL6XyzBFBdjHnh1Qe4IRky5u2Ri9pxp626rua7kstLbdr3swGN6Yl3n3iIXXNnGAmHy-OPuO2Vm6NjoAuCsHOCUSdn0TL-oC9TediHaPB9hDwIlOWTW3DpR1G3rqJcKs09r9Z2ptA67RCaP_Omt1ppDoVJ6DI9uyRQA', risk: 'high' },
-  { id: '2', name: 'Mariposa monarca', date: '2024-07-25 11:15', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCTracgEDej9PC2hEEOH-HTuI6IHxNxk3_w3z3EeYnlUDoVynadHemxspTo3wtSCMZO7JyRAvANhYfh32QM7E4qRsEwLQTzHpjvHeR1I5fIPzeEnAzDm4MvRr9T0-3OVH15nZJ0YRLSUrCLKZ-uGtqhoHf40a6EnsVKt04X5P5UABnsPnYMPF2WWOtY9VFQHTNlVpRwo7vbCBmwyE2cMe08cvsYHqprL7XQ7ONIoOcZO0xEYCFhcklz_7EF42GM5rHGHiM_cNPl7U4', risk: 'low' },
-];
-
+// --- Iconos ---
 const PlusIcon = () => <Svg width="24px" height="24px" fill="#111811" viewBox="0 0 256 256"><Path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></Path></Svg>;
 const SearchIcon = () => <Svg width="24px" height="24px" fill="#638863" viewBox="0 0 256 256"><Path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></Path></Svg>;
 const CaretDownIcon = () => <Svg width="20px" height="20px" fill="#111811" viewBox="0 0 256 256"><Path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></Path></Svg>;
 
+// --- Componentes ---
 const FilterButton = ({ label }) => (
   <TouchableOpacity style={styles.filterButton}>
     <Text style={styles.filterButtonText}>{label}</Text>
@@ -20,34 +19,66 @@ const FilterButton = ({ label }) => (
   </TouchableOpacity>
 );
 
-const SightingItem = ({ item }) => (
-  <TouchableOpacity style={styles.itemContainer}>
-    <View style={styles.itemContent}>
-      <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
-      <View style={styles.itemTextContainer}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemDate}>{item.date}</Text>
-      </View>
-    </View>
-    <View style={styles.itemRiskIndicatorContainer}>
-        <View style={[styles.itemRiskIndicator, { backgroundColor: item.risk === 'high' ? '#D92D20' : '#078823'}]} />
-    </View>
-  </TouchableOpacity>
-);
+const CollectionItem = ({ item, navigation }) => {
+  const risk = item.peligrosidadHumanos?.toLowerCase();
+  let riskColor = '#638863';
+  if (risk === 'alto') riskColor = '#D92D20';
+  if (risk === 'medio') riskColor = '#F79009';
 
-export default function CollectionsScreen() {
+  const handlePress = () => {
+    navigation.navigate('Resultados', { 
+        analysis: JSON.stringify(item),
+        imageUri: item.imageUri 
+    });
+  };
+
+  return (
+    <TouchableOpacity style={styles.itemContainer} onPress={handlePress}>
+      <View style={styles.itemContent}>
+        <Image source={{ uri: item.imageUri }} style={styles.itemImage} />
+        <View style={styles.itemTextContainer}>
+          <Text style={styles.itemName}>{item.nombreComun}</Text>
+          <Text style={styles.itemDate}>{item.nombreCientifico}</Text>
+        </View>
+      </View>
+      <View style={styles.itemRiskIndicatorContainer}>
+          <View style={[styles.itemRiskIndicator, { backgroundColor: riskColor }]} />
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export default function CollectionsScreen({ navigation }) {
+  const [collections, setCollections] = useState([]);
+
+  // useFocusEffect se ejecuta cada vez que la pantalla entra en foco.
+  useFocusEffect(
+    useCallback(() => {
+      const loadCollections = async () => {
+        const data = await getCollections();
+        setCollections(data.reverse());
+      };
+
+      loadCollections();
+
+      return () => {
+        // Opcional: una función de limpieza si es necesario
+      };
+    }, [])
+  );
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>Mis avistamientos</Text>
+        <Text style={styles.headerTitle}>Mis Colecciones</Text>
         <TouchableOpacity style={styles.headerIcon}><PlusIcon /></TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
         <View style={styles.searchInputWrapper}>
             <View style={styles.searchIconContainer}><SearchIcon /></View>
-            <TextInput placeholder="Buscar por especie, fecha o ubicación" style={styles.searchInput} placeholderTextColor="#638863" />
+            <TextInput placeholder="Buscar en tus colecciones..." style={styles.searchInput} placeholderTextColor="#638863" />
         </View>
       </View>
 
@@ -57,10 +88,16 @@ export default function CollectionsScreen() {
       </View>
 
       <FlatList
-        data={sightingsData}
-        renderItem={({ item }) => <SightingItem item={item} />}
+        data={collections}
+        renderItem={({ item }) => <CollectionItem item={item} navigation={navigation} />}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContentContainer}
+        ListEmptyComponent={() => (
+            <View style={styles.emptyListContainer}>
+                <Text style={styles.emptyListText}>Tu colección está vacía.</Text>
+                <Text style={styles.emptyListSubText}>¡Usa la cámara para identificar y guardar tu primer insecto!</Text>
+            </View>
+        )}
       />
     </SafeAreaView>
   );
@@ -78,13 +115,16 @@ const styles = StyleSheet.create({
   filtersContainer: { flexDirection: 'row', gap: 12, paddingHorizontal: 12, paddingBottom: 8 },
   filterButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0f4f0', borderRadius: 8, paddingLeft: 16, paddingRight: 8, height: 32 },
   filterButtonText: { color: '#111811', fontSize: 14, fontWeight: '500', marginRight: 8 },
-  listContentContainer: { paddingTop: 8 },
-  itemContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', paddingHorizontal: 16, minHeight: 72, paddingVertical: 8 },
+  listContentContainer: { paddingTop: 8, flexGrow: 1 },
+  itemContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', paddingHorizontal: 16, minHeight: 72, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f4f0' },
   itemContent: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  itemImage: { width: 56, height: 56, borderRadius: 8 },
+  itemImage: { width: 56, height: 56, borderRadius: 8, backgroundColor: '#f0f4f0' },
   itemTextContainer: { justifyContent: 'center' },
   itemName: { color: '#111811', fontSize: 16, fontWeight: '500' },
   itemDate: { color: '#638863', fontSize: 14 },
   itemRiskIndicatorContainer: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
   itemRiskIndicator: { width: 12, height: 12, borderRadius: 6 },
+  emptyListContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
+  emptyListText: { fontSize: 18, fontWeight: 'bold', color: '#111811' },
+  emptyListSubText: { fontSize: 14, color: '#638863', textAlign: 'center', marginTop: 8 },
 });

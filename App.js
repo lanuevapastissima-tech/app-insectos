@@ -1,14 +1,14 @@
-
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Svg, { Path } from 'react-native-svg';
 
-// Importamos los componentes de pantalla desde su nueva ubicación
+// Importamos los componentes de pantalla
 import HomeScreen from './src/screens/HomeScreen';
 import CollectionsScreen from './src/screens/CollectionsScreen';
 import CommunityScreen from './src/screens/CommunityScreen';
 import MapScreen from './src/screens/MapScreen';
+import ResultScreen from './src/screens/ResultScreen'; // <-- Pantalla de Resultados importada
 
 const Tab = createBottomTabNavigator();
 
@@ -32,6 +32,13 @@ export default function App() {
         <Tab.Screen name="Colecciones" component={CollectionsScreen} options={{ tabBarIcon: ({ color }) => <CollectionsIcon color={color} /> }} />
         <Tab.Screen name="Comunidad" component={CommunityScreen} options={{ tabBarIcon: ({ color }) => <CommunityIcon color={color} /> }} />
         <Tab.Screen name="Mapa" component={MapScreen} options={{ tabBarIcon: ({ color }) => <MapIcon color={color} /> }} />
+        
+        {/* Pantalla oculta para los resultados */}
+        <Tab.Screen 
+          name="Resultados" 
+          component={ResultScreen} 
+          options={{ tabBarButton: () => null }} 
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );

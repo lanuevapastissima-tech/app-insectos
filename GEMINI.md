@@ -1,46 +1,28 @@
-
 # Bitácora y Estado del Proyecto: App de Insectos
 
 Este documento sirve como una memoria persistente del proyecto, detallando el estado actual, las decisiones clave y la hoja de ruta.
 
-## Estado Actual (15 de Octubre de 2025)
+## Estado Actual (16 de Octubre de 2025)
 
-- **Proyecto Inicializado:** Se ha creado un proyecto base usando `Expo SDK 54`.
-- **Navegación:** La arquitectura de navegación ha sido refactorizada. Se abandonó el sistema por defecto `expo-router` debido a un bug de caché persistente e irresoluble en el entorno de desarrollo. En su lugar, se implementó una navegación manual utilizando las librerías `@react-navigation/native` y `@react-navigation/bottom-tabs`.
-- **Estructura de Archivos:**
-    - El punto de entrada de la aplicación es `index.js` -> `App.js`.
-    - `App.js` contiene el `NavigationContainer` y el `Tab.Navigator`.
-    - Las pantallas se encuentran en el directorio `src/screens/`.
-    - La carpeta `app/` de `expo-router` ha sido eliminada.
-- **UI Implementada (Maquetación):**
-    - Se ha implementado la maquetación estática para las 4 pantallas principales de la barra de navegación: `Inicio`, `Colecciones`, `Comunidad` y `Mapa`.
-    - El estilo se ha implementado con el sistema `StyleSheet` estándar de React Native, traduciendo los diseños HTML proporcionados.
-    - Se ha solucionado el problema de solapamiento de la UI con la barra de estado del dispositivo mediante el uso correcto de `SafeAreaView` de `react-native-safe-area-context`.
-- **Dependencias Clave Añadidas:**
-    - `react-navigation` (native, bottom-tabs)
-    - `react-native-maps`
-    - `react-native-svg`
-    - `openai`
-    - `express` (para el futuro backend)
+- **Proyecto Funcional (MVP del Core Loop):** La aplicación ha alcanzado su primer hito funcional importante. El ciclo completo de identificación y colección está implementado y operativo.
+- **Circuito Mágico (Completo):** Se ha implementado el flujo completo desde la captura de una imagen con la cámara, el envío a un backend local, el análisis por parte de la API de OpenAI (GPT-4o) y la visualización de los resultados en una pantalla de detalles.
+- **Persistencia de Datos (Implementada):** Se ha creado un servicio de almacenamiento (`StorageService`) que utiliza `AsyncStorage` para guardar las identificaciones de insectos localmente en el dispositivo.
+- **Gestión de Colecciones (Implementada):** La pantalla "Colecciones" ahora es dinámica. Lee las identificaciones guardadas y las muestra en una lista. Es posible navegar desde un ítem de la colección de vuelta a la pantalla de detalles para revisar la información.
+- **IA Interactiva (Implementada):** La pantalla de resultados incluye una funcionalidad para hacer preguntas de seguimiento a la IA sobre el insecto identificado, con un modal para la entrada de texto y visualización de la respuesta.
+- **Bugs Solucionados:** Se han corregido errores de navegación (pantalla de resultados no encontrada), de estado (la conversación de la IA persistía entre identificaciones) y de refresco de datos (la pantalla de colecciones no se actualizaba).
 
 ## Problemas Conocidos
 
-- **Pantalla del Mapa:** Aunque la pantalla ya no crashea, el layout en el emulador del usuario no es el deseado. La tarea de ajustar el diseño fino del mapa está **aparcada** para no bloquear el desarrollo.
+- **Pantalla del Mapa:** El layout en el emulador del usuario no es el deseado. La tarea de ajustar el diseño fino del mapa está **aparcada**.
+- **UI de Colecciones:** Los botones de búsqueda y filtros en la pantalla de colecciones están maquetados pero no son funcionales.
 
 ## Hoja de Ruta del Proyecto (Resumen)
 
 - **Fase 0: Preparación del Terreno (Completada)**
 - **Fase 1: La Cimentación y la "Prueba de Fuego" (Completada)**
-- **Fase 2: El "Circuito Mágico" (Siguiente)**
-    - Activar la cámara/galería desde la pantalla de "Inicio".
-    - Construir el "Puente": enviar la imagen al backend.
-    - Conectar el backend con la API de OpenAI.
-    - Crear la pantalla de Resultados y mostrar la información.
-- **Fase 3: Amueblando la Casa**
-    - Implementar Login/Registro de usuarios.
-    - Dar funcionalidad a "Colecciones" (guardar y leer de la BBDD).
-    - Implementar la "Conexión Híbrida" Diario-Colecciones.
-- **Fase 4: Abriendo las Puertas (La Comunidad)**
+- **Fase 2: El "Circuito Mágico" (Completada)**
+- **Fase 3: Amueblando la Casa (Completada)**
+- **Fase 4: Abriendo las Puertas (La Comunidad) (Siguiente)**
     - Implementar la publicación de posts, likes y comentarios.
 - **Fase 5: Limpieza y Decoración Final**
     - Implementar la pantalla de "Ajustes".
