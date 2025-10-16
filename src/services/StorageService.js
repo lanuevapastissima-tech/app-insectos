@@ -47,7 +47,17 @@ export const getCollections = async () => {
  * (Futuro) Elimina una identificación específica por su ID.
  */
 export const deleteIdentification = async (id) => {
-    // Lógica para eliminar un elemento específico
+    try {
+        const existingCollections = await getCollections();
+        const updatedCollections = existingCollections.filter(item => item.id !== id);
+        const jsonValue = JSON.stringify(updatedCollections);
+        await AsyncStorage.setItem(COLLECTIONS_KEY, jsonValue);
+        console.log(`Identificación con id: ${id} eliminada exitosamente.`);
+        return true;
+    } catch (e) {
+        console.error('Error al eliminar la identificación:', e);
+        return false;
+    }
 };
 
 /**

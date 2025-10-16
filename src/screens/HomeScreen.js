@@ -1,7 +1,7 @@
-
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StatusBar, StyleSheet, ActivityIndicator, Alert, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -22,22 +22,24 @@ export default function HomeScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  // Efecto para limpiar el estado cuando la pantalla se enfoca
+  useFocusEffect(
+    useCallback(() => {
+      setComment('');
+      setDate(new Date());
+      // No reseteamos isLoading aquí, se maneja en el flujo de subida
+    }, [])
+  );
+
   const uploadAndIdentify = async (imageUri) => {
     setIsLoading(true);
-    console.log(`Iniciando subida para la imagen: ${imageUri}`);
-    console.log(`Con comentario: "${comment}" y fecha: ${date.toISOString()}`);
-
     const formData = new FormData();
     formData.append('image', { uri: imageUri, name: `photo.jpg`, type: 'image/jpeg' });
     formData.append('comment', comment);
     formData.append('date', date.toISOString());
 
     try {
-      const response = await fetch(SERVER_URL, { 
-        method: 'POST', 
-        body: formData, 
-        headers: { 'Content-Type': 'multipart/form-data' } 
-      });
+      const response = await fetch(SERVER_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'multipart/form-data' } });
       const responseJson = await response.json();
       if (!response.ok) throw new Error(responseJson.error || 'Error del servidor');
       navigation.navigate('Resultados', { analysis: JSON.stringify(responseJson), imageUri });
@@ -51,7 +53,6 @@ export default function HomeScreen({ navigation }) {
   const handleCameraPress = async () => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (perm.status !== 'granted') return Alert.alert('Permiso denegado', 'Se necesita acceso a la cámara.');
-    
     try {
         const result = await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [3, 2], quality: 0.8 });
         if (!result.canceled) await uploadAndIdentify(result.assets[0].uri);
@@ -63,7 +64,6 @@ export default function HomeScreen({ navigation }) {
   const handleImagePick = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (perm.status !== 'granted') return Alert.alert('Permiso denegado', 'Se necesita acceso a la galería.');
-
     try {
         const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [3, 2], quality: 0.8 });
         if (!result.canceled) await uploadAndIdentify(result.assets[0].uri);
@@ -82,7 +82,7 @@ export default function HomeScreen({ navigation }) {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.headerContainer}>
-        <TouchableOpacity style={styles.headerIcon} onPress={() => { /* Acción no definida todavía */ }}><ArrowLeftIcon /></TouchableOpacity>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => { /* No action for now */ }}><ArrowLeftIcon /></TouchableOpacity>
         <Text style={styles.headerTitle}>Identificar</Text>
       </View>
 
@@ -92,7 +92,7 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Comentario</Text>
+            <Text style={styles.label}>Notas del Avistamiento</Text>
             <TextInput 
                 style={styles.textArea}
                 placeholder="Añadir comentario..."

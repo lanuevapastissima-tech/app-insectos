@@ -32,13 +32,19 @@ const CollectionItem = ({ item, navigation }) => {
     });
   };
 
+  // Valida la fecha antes de mostrarla
+  const displayDate = item.date && !isNaN(new Date(item.date)) 
+    ? new Date(item.date).toLocaleDateString('es-ES') 
+    : '';
+
   return (
     <TouchableOpacity style={styles.itemContainer} onPress={handlePress}>
       <View style={styles.itemContent}>
         <Image source={{ uri: item.imageUri }} style={styles.itemImage} />
         <View style={styles.itemTextContainer}>
           <Text style={styles.itemName}>{item.nombreComun}</Text>
-          <Text style={styles.itemDate}>{item.nombreCientifico}</Text>
+          <Text style={styles.itemDate}>{displayDate}</Text>
+          <Text style={styles.itemRiskText}>Riesgo: {item.peligrosidadHumanos || 'N/A'}</Text>
         </View>
       </View>
       <View style={styles.itemRiskIndicatorContainer}>
@@ -51,7 +57,6 @@ const CollectionItem = ({ item, navigation }) => {
 export default function CollectionsScreen({ navigation }) {
   const [collections, setCollections] = useState([]);
 
-  // useFocusEffect se ejecuta cada vez que la pantalla entra en foco.
   useFocusEffect(
     useCallback(() => {
       const loadCollections = async () => {
@@ -60,10 +65,6 @@ export default function CollectionsScreen({ navigation }) {
       };
 
       loadCollections();
-
-      return () => {
-        // Opcional: una función de limpieza si es necesario
-      };
     }, [])
   );
 
@@ -122,6 +123,7 @@ const styles = StyleSheet.create({
   itemTextContainer: { justifyContent: 'center' },
   itemName: { color: '#111811', fontSize: 16, fontWeight: '500' },
   itemDate: { color: '#638863', fontSize: 14 },
+  itemRiskText: { color: '#638863', fontSize: 12, fontStyle: 'italic' },
   itemRiskIndicatorContainer: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
   itemRiskIndicator: { width: 12, height: 12, borderRadius: 6 },
   emptyListContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },

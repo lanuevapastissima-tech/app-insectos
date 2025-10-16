@@ -1,12 +1,11 @@
 
-require('dotenv').config();
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const OpenAI = require('openai');
 
-// --- Inicialización y Configuración ---
 const app = express();
 const port = 3000;
 
@@ -17,14 +16,11 @@ if (!process.env.OPENAI_API_KEY) {
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// --- Middlewares ---
 app.use(cors());
 app.use(express.json());
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
 
-// --- Prompts de Sistema para la IA ---
 const identificationPrompt = `
   Eres un experto entomólogo y biólogo de clase mundial. Tu tarea es identificar el insecto en la imagen proporcionada por el usuario.
   Debes responder únicamente con un objeto JSON, sin texto adicional antes o después.
@@ -48,29 +44,27 @@ const identificationPrompt = `
   }
   Si no puedes identificar el insecto o la imagen no es clara, devuelve un JSON con el campo "nombreComun" como "Desconocido" y una "descripcion" explicando el problema.
 `;
-
 const conversationSystemPrompt = `
   Eres un experto entomólogo y biólogo de clase mundial. Responde a la pregunta del usuario de forma clara, concisa y amigable, como si estuvieras explicando a un aficionado curioso.
   Limita tu respuesta a uno o dos párrafos.
 `;
 
-// --- Rutas ---
 app.get('/', (req, res) => {
   res.send('¡El servidor de identificación de insectos está funcionando!');
 });
 
-app.post('/api/identify', upload.single('image'), async (req, res) => {
+app.post('/api/identify', upload.any(), async (req, res) => {
   const { comment, date } = req.body;
-  console.log('Petición recibida en /api/identify');
-  console.log(`Datos adicionales: Comentario - \"${comment}\", Fecha - ${date}`);
-  if (!req.file) {
+  console.log(`Petición recibida con: Comentario - \"${comment}\", Fecha - ${date}`);
+  
+  const imageFile = req.files && req.files[0];
+  if (!imageFile) {
     return res.status(400).json({ error: 'No se proporcionó ninguna imagen.' });
   }
 
   try {
-    const base64Image = req.file.buffer.toString('base64');
-    const dataUrl = `data:${req.file.mimetype};base64,${base64Image}`;
-    console.log('Enviando imagen a OpenAI para análisis...');
+    const base64Image = imageFile.buffer.toString('base64');
+    const dataUrl = `data:${imageFile.mimetype};base64,${base64Image}`;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
@@ -88,29 +82,27 @@ app.post('/api/identify', upload.single('image'), async (req, res) => {
       response_format: { type: "json_object" },
     });
 
-    console.log('Análisis de OpenAI recibido exitosamente.');
     const analysisResult = JSON.parse(response.choices[0].message.content);
-    res.status(200).json(analysisResult);
+
+    const finalResult = {
+      ...analysisResult,
+      comment: comment || '',
+      date: date || new Date().toISOString(),
+    };
+
+    res.status(200).json(finalResult);
 
   } catch (error) {
-    console.error('Error al procesar con OpenAI en /api/identify:', error);
+    console.error('Error en /api/identify:', error);
     res.status(500).json({ error: 'Hubo un error en el servidor al analizar la imagen.' });
   }
 });
 
 app.post('/api/ask', async (req, res) => {
     const { question, context } = req.body;
-    console.log(`Petición recibida en /api/ask con la pregunta: "${question}"`);
-
-    if (!question || !context) {
-        return res.status(400).json({ error: 'Faltan la pregunta o el contexto del insecto.' });
-    }
-
+    if (!question || !context) return res.status(400).json({ error: 'Faltan datos.' });
     try {
-        const userMessage = `El insecto en cuestión es ${context.nombreComun} (${context.nombreCientifico}). Mi pregunta es: ${question}`;
-
-        console.log('Enviando pregunta de seguimiento a OpenAI...');
-
+        const userMessage = `El insecto es ${context.nombreComun} (${context.nombreCientifico}). Mi pregunta es: ${question}`;
         const response = await openai.chat.completions.create({
             model: 'gpt-4o',
             messages: [
@@ -119,18 +111,13 @@ app.post('/api/ask', async (req, res) => {
             ],
             max_tokens: 300,
         });
-
-        const answer = response.choices[0].message.content;
-        console.log('Respuesta de seguimiento recibida.');
-        res.status(200).json({ answer });
-
+        res.status(200).json({ answer: response.choices[0].message.content });
     } catch (error) {
-        console.error('Error al procesar con OpenAI en /api/ask:', error);
-        res.status(500).json({ error: 'Hubo un error en el servidor al procesar la pregunta.' });
+        console.error('Error en /api/ask:', error);
+        res.status(500).json({ error: 'Error al procesar la pregunta.' });
     }
 });
 
-// --- Puesta en Marcha ---
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
 });

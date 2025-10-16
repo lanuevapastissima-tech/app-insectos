@@ -1,15 +1,18 @@
-
 # Bitácora y Estado del Proyecto: App de Insectos
 
 Este documento sirve como una memoria persistente del proyecto, detallando el estado actual, las decisiones clave y la hoja de ruta.
 
 ## Estado Actual (17 de Octubre de 2025)
 
-- **Rediseño de `HomeScreen`:** La pantalla "Identificar" ha sido completamente rediseñada con una nueva interfaz de usuario más moderna y funcional.
-- **Nuevos Campos de Datos:** Se han añadido y activado los campos para "Comentarios" y "Fecha" (con selector de calendario), permitiendo al usuario añadir más contexto a cada identificación.
-- **Funcionalidad de "Subir" Activada:** El botón para subir una imagen desde la galería del dispositivo es ahora completamente funcional.
-- **Integración de Nuevos Datos:** El backend y el servicio de almacenamiento han sido actualizados para procesar y guardar los nuevos campos de comentario y fecha.
-- **Proyecto Funcional (MVP del Core Loop):** La aplicación mantiene su ciclo funcional completo (Identificar -> Guardar -> Coleccionar) con las nuevas mejoras.
+- **App Estable y Funcional:** El flujo principal (Identificar, detallar, guardar, coleccionar, eliminar) es robusto. Se han solucionado bugs críticos de flujo de datos y renderizado.
+- **Mejoras de UI/UX:**
+    - Se ha rediseñado la pantalla `Identificar` (`HomeScreen`) con una nueva interfaz y campos de datos adicionales (Notas, Fecha).
+    - Se ha mejorado la tarjeta de `Colecciones` para mostrar información más relevante (Fecha, Nivel de Riesgo).
+    - Se ha corregido un bug de desbordamiento de texto en la pantalla de `Resultados`.
+- **Funcionalidades Implementadas:**
+    - **Circuito Mágico:** Captura (Cámara/Galería) -> Backend -> Análisis con IA -> Visualización.
+    - **Persistencia Local:** Guardado, listado y eliminación de identificaciones con `AsyncStorage`.
+    - **IA Interactiva:** Conversación de seguimiento con la IA sobre un insecto identificado.
 
 ## Problemas Conocidos
 
