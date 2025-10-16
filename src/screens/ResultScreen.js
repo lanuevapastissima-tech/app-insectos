@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StatusBar, StyleSheet, Image, ScrollView, ImageBackground, Alert, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
-import { saveIdentification, deleteIdentification } from '../services/StorageService';
+import { saveIdentification, deleteIdentification, updateIdentification } from '../services/StorageService';
 
 const SERVER_IP = '192.168.100.145';
 const ASK_URL = `http://${SERVER_IP}:3000/api/ask`;
@@ -37,10 +37,16 @@ export default function ResultScreen({ route, navigation }) {
     useEffect(() => {
         if (analysis) {
             try {
-                setIaAnswer('');
-                setQuestion('');
                 const parsedData = JSON.parse(analysis);
                 setData({ ...parsedData, imageUri });
+
+                if (parsedData.userQuestion && parsedData.iaAnswer) {
+                    setQuestion(parsedData.userQuestion);
+                    setIaAnswer(parsedData.iaAnswer);
+                } else {
+                    setIaAnswer('');
+                    setQuestion('');
+                }
             } catch (e) {
                 console.error("Error al parsear JSON en ResultScreen:", e);
                 setData({ nombreComun: "Error de Datos", descripcion: "No se pudo leer el análisis." });
@@ -49,25 +55,20 @@ export default function ResultScreen({ route, navigation }) {
     }, [analysis, imageUri]);
 
     const handleDelete = () => {
-        Alert.alert(
-            "Eliminar Identificación",
-            "¿Estás seguro? Esta acción no se puede deshacer.",
-            [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Sí, eliminar", onPress: async () => {
-                    if (data.id) {
-                        await deleteIdentification(data.id);
-                    }
-                    navigation.navigate('Colecciones');
-                }, style: "destructive" }
-            ]
-        );
+        Alert.alert("Eliminar Identificación", "¿Estás seguro?", [
+            { text: "Cancelar", style: "cancel" },
+            { text: "Sí, eliminar", onPress: async () => {
+                if (data.id) await deleteIdentification(data.id);
+                navigation.navigate('Colecciones');
+            }, style: "destructive" }
+        ]);
     };
 
     const handleSave = async () => {
-        const success = await saveIdentification(data);
-        if (success) {
-            Alert.alert("Guardado", "La identificación está en tus Colecciones.", [
+        const savedOrUpdatedData = await saveIdentification(data);
+        if (savedOrUpdatedData) {
+            setData(savedOrUpdatedData); // Actualiza el estado con el item que ahora tiene ID
+            Alert.alert("Éxito", "La identificación ha sido guardada en tus Colecciones.", [
                 { text: "OK", onPress: () => navigation.navigate('Colecciones') }
             ]);
         } else {
@@ -79,21 +80,28 @@ export default function ResultScreen({ route, navigation }) {
         if (!question.trim()) return;
         setModalVisible(false);
         setIsAskingIA(true);
-        setIaAnswer('');
         try {
-            const response = await fetch(ASK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question, context: data }),
-            });
+            const response = await fetch(ASK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question, context: data }) });
             const responseJson = await response.json();
             if (!response.ok) throw new Error(responseJson.error);
-            setIaAnswer(responseJson.answer);
+            
+            const newAnswer = responseJson.answer;
+            setIaAnswer(newAnswer); // <-- LA LÍNEA CLAVE PARA ACTUALIZAR LA UI EN TIEMPO REAL
+            const dataWithConversation = { ...data, userQuestion: question, iaAnswer: newAnswer };
+            
+            // AUTOGUARDADO INTELIGENTE: Guarda o actualiza el registro con la nueva conversación
+            const finalSavedData = await saveIdentification(dataWithConversation);
+            if (finalSavedData) {
+                setData(finalSavedData); // Actualiza el estado con la versión final de los datos (que ahora tienen ID)
+            } else {
+                // Si el autoguardado falla, al menos muestra la respuesta en la UI temporalmente
+                setData(dataWithConversation);
+                Alert.alert("Error de Guardado", "No se pudo guardar la conversación, pero aquí está tu respuesta.");
+            }
         } catch (error) {
             Alert.alert('Error de IA', error.message);
         } finally {
             setIsAskingIA(false);
-            setQuestion('');
         }
     };
 
@@ -188,6 +196,12 @@ export default function ResultScreen({ route, navigation }) {
                 {isAskingIA && <ActivityIndicator size="large" color="#111811" style={{marginVertical: 20}} />}
                 {iaAnswer && (
                     <View style={styles.iaAnswerContainer}>
+                        {data.userQuestion && 
+                            <View style={styles.userQuestionContainer}>
+                                <Text style={styles.iaAnswerTitle}>Tu pregunta:</Text>
+                                <Text style={styles.userQuestionText}>{data.userQuestion}</Text>
+                            </View>
+                        }
                         <Text style={styles.iaAnswerTitle}>Respuesta de la IA:</Text>
                         <Text style={styles.iaAnswerText}>{iaAnswer}</Text>
                     </View>
@@ -244,7 +258,9 @@ const styles = StyleSheet.create({
     textInput: { borderWidth: 1, borderColor: '#dce5dc', borderRadius: 8, padding: 12, minHeight: 100, textAlignVertical: 'top' },
     modalButtonContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
     modalButton: { flex: 1, height: 40, backgroundColor: '#f0f4f0', borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-    iaAnswerContainer: { margin: 16, padding: 16, backgroundColor: '#f0f4f0', borderRadius: 8 },
+    iaAnswerContainer: { margin: 16, padding: 16, backgroundColor: '#f0f4f0', borderRadius: 8, gap: 16 },
+    userQuestionContainer: { paddingBottom: 16, borderBottomWidth: 1, borderColor: '#dce5dc' },
+    userQuestionText: { color: '#638863', fontStyle: 'italic' },
     iaAnswerTitle: { fontWeight: 'bold', marginBottom: 8, color: '#111811' },
     iaAnswerText: { color: '#111811', lineHeight: 22 },
 });

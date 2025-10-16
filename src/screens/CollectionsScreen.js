@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StatusBar, StyleSheet, Image, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,12 +5,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import { getCollections } from '../services/StorageService';
 
-// --- Iconos ---
 const PlusIcon = () => <Svg width="24px" height="24px" fill="#111811" viewBox="0 0 256 256"><Path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></Path></Svg>;
 const SearchIcon = () => <Svg width="24px" height="24px" fill="#638863" viewBox="0 0 256 256"><Path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></Path></Svg>;
 const CaretDownIcon = () => <Svg width="20px" height="20px" fill="#111811" viewBox="0 0 256 256"><Path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></Path></Svg>;
 
-// --- Componentes ---
 const FilterButton = ({ label }) => (
   <TouchableOpacity style={styles.filterButton}>
     <Text style={styles.filterButtonText}>{label}</Text>
@@ -32,7 +29,6 @@ const CollectionItem = ({ item, navigation }) => {
     });
   };
 
-  // Valida la fecha antes de mostrarla
   const displayDate = item.date && !isNaN(new Date(item.date)) 
     ? new Date(item.date).toLocaleDateString('es-ES') 
     : '';
