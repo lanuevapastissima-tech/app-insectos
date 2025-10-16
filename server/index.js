@@ -60,7 +60,9 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/identify', upload.single('image'), async (req, res) => {
+  const { comment, date } = req.body;
   console.log('Petición recibida en /api/identify');
+  console.log(`Datos adicionales: Comentario - \"${comment}\", Fecha - ${date}`);
   if (!req.file) {
     return res.status(400).json({ error: 'No se proporcionó ninguna imagen.' });
   }

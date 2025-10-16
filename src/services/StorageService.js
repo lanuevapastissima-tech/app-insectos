@@ -14,8 +14,8 @@ export const saveIdentification = async (identificationData) => {
 
     // 2. Añadir la nueva identificación (añadiendo un ID único basado en la fecha)
     const newIdentification = { 
+      id: `insect_${Date.now()}`,
       ...identificationData, 
-      id: `insect_${Date.now()}` 
     };
     const updatedCollections = [...existingCollections, newIdentification];
 
