@@ -1,0 +1,47 @@
+{
+  "welcome": {
+    "title": "Welcome to the Insect App"
+  },
+  "onboarding": {
+    "slide1": {
+      "title": "Smart Identification for Safe Action",
+      "text": "Saw an insect and wonder if it's dangerous? Just take a picture. Our AI instantly tells you what it is, if it poses a risk to you, and gives you clear, safe steps on how to act. From photo to action in seconds."
+    },
+    "slide2": {
+      "title": "From Individual Fear to Collective Pattern",
+      "text": "With every insect you identify, you help us map the wildlife activity in your neighborhood. See where the most reported insects are, identify risk patterns near you, and protect your family with the information we gather together."
+    },
+    "slide3": {
+      "title": "Verifiable Civic and Ecological Contribution",
+      "text": "Your curiosity becomes a public service. If you find something important, you can report it directly to health authorities. Plus, you're helping science monitor local wildlife. Be part of the solution!"
+    }
+  },
+  "auth": {
+    "registerTitle": "Sign Up",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "agreeToTerms": "I agree to the Terms and Conditions",
+    "registerButton": "Sign Up",
+    "alreadyHaveAccount": "Already have an account? Sign In",
+    "loginTitle": "Welcome back",
+    "loginButton": "Sign In",
+    "dontHaveAccount": "Don\'t have an account?",
+    "signUpLink": "Sign Up",
+    "forgotPasswordLink": "Forgot your password?",
+    "forgotPasswordTitle": "Forgot My Password",
+    "forgotPasswordSubtitle": "Enter your email address",
+    "forgotPasswordInstructions": "We will send you instructions to reset your password",
+    "sendInstructionsButton": "Send Instructions"
+  },
+  "common": {
+    "skip": "Skip",
+    "next": "Next",
+    "getStarted": "Get Started"
+  }
+}

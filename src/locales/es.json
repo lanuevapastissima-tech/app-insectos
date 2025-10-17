@@ -1,0 +1,47 @@
+{
+  "welcome": {
+    "title": "Bienvenido a la App de Insectos"
+  },
+  "onboarding": {
+    "slide1": {
+      "title": "Identificación Inteligente para la Acción Segura",
+      "text": "¿Viste un insecto y te preguntas si es peligroso? Solo toma una foto. Nuestra IA te dice al instante qué es, si representa un riesgo para ti y te da pasos claros y seguros sobre cómo actuar. De la foto a la acción en segundos."
+    },
+    "slide2": {
+      "title": "Del miedo individual al patrón colectivo",
+      "text": "Con cada insecto que identifiques, nos ayudarás a mapear la actividad de la fauna en tu vecindario. Observa dónde se encuentran los insectos más reportados, identifica patrones de riesgo cerca de ti y protege a tu familia con la información que recopilamos juntos."
+    },
+    "slide3": {
+      "title": "Contribución Cívica y Ecológica Verificable",
+      "text": "Tu curiosidad se convierte en un servicio público. Si encuentras algo importante, puedes reportarlo directamente a las autoridades sanitarias. Además, estás ayudando a la ciencia a monitorear la vida silvestre local. ¡Sé parte de la solución!"
+    }
+  },
+  "auth": {
+    "registerTitle": "Registrarse",
+    "usernameLabel": "Nombre de usuario",
+    "usernamePlaceholder": "Ingresa tu nombre de usuario",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Ingresa tu correo electrónico",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "confirmPasswordLabel": "Confirmar contraseña",
+    "confirmPasswordPlaceholder": "Confirma tu contraseña",
+    "agreeToTerms": "Acepto los Términos y Condiciones",
+    "registerButton": "Registrarse",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta? Iniciar sesión",
+    "loginTitle": "Bienvenido de nuevo",
+    "loginButton": "Iniciar sesión",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "signUpLink": "Regístrate",
+    "forgotPasswordLink": "¿Olvidaste tu contraseña?",
+    "forgotPasswordTitle": "Olvidé mi contraseña",
+    "forgotPasswordSubtitle": "Ingresa tu correo electrónico",
+    "forgotPasswordInstructions": "Te enviaremos instrucciones para restablecer tu contraseña",
+    "sendInstructionsButton": "Enviar instrucciones"
+  },
+  "common": {
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "getStarted": "Comenzar"
+  }
+}

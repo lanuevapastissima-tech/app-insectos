@@ -1,28 +1,23 @@
-
 # Bitácora y Estado del Proyecto: App de Insectos
 
 Este documento sirve como una memoria persistente del proyecto, detallando el estado actual, las decisiones clave y la hoja de ruta.
 
-## Estado Actual (17 de Octubre de 2025 - MVP Estable)
+## Estado Actual (18 de Octubre de 2025)
 
-- **MVP 1.0 Estable y Funcional:** La aplicación ha alcanzado un estado de "Mínimo Producto Viable" robusto. Todos los flujos de trabajo principales (identificación, guardado, consulta, actualización y eliminación) funcionan correctamente tras una intensa fase de depuración.
-- **Lógica de Datos Refinada:**
-    - Se ha implementado un sistema de "autoguardado inteligente" que persiste las conversaciones con la IA sin requerir una acción manual del usuario.
-    - Se ha refactorizado la lógica de guardado y actualización para ser "defensiva", previniendo la creación de registros duplicados.
-    - Se ha solucionado el bug de "fuga de datos", asegurando que la información del usuario (comentarios, fecha) viaja correctamente a través de todo el sistema.
-- **Mejoras de UI/UX:**
-    - Se ha rediseñado la pantalla `Identificar` (`HomeScreen`).
-    - Se ha mejorado la tarjeta de `Colecciones` para mostrar más datos (Fecha, Riesgo).
-    - Se ha corregido un bug de desbordamiento de texto en la pantalla de `Resultados`.
+- **Fase de Pulido Completada:** Se ha finalizado la mejora de la pantalla `Colecciones`, implementando funcionalidades completas de búsqueda por texto y filtros combinables por Riesgo y Fecha.
+- **Mejoras de UI/UX:** Se ha mejorado la retroalimentación visual en la lista de colecciones, añadiendo bordes definidos a las tarjetas y un efecto de zoom al pulsarlas.
+- **Estabilidad del Entorno de Desarrollo:** Se ha solucionado un bug crítico de conexión de red (`Network request failed`) que afectaba las pruebas en dispositivos físicos, estabilizando la comunicación con el servidor local.
+- **Corrección de Bugs:** Se han eliminado errores de renderizado y estado en la pantalla de `Resultados` que provocaban la desaparición intermitente de los datos tras una identificación.
+- **Preparación para Fase 4:** Se han instalado las dependencias de Supabase y se han creado los archivos base para el sistema de autenticación, dejando todo listo para iniciar la implementación.
 
 ## Problemas Conocidos
 
 - **Pantalla del Mapa:** El layout sigue aparcado.
-- **UI de Colecciones:** Los botones de búsqueda y filtros no son funcionales.
 - **Botón "Scanner":** Funcionalidad no definida.
 
 ## Hoja de Ruta del Proyecto (Resumen)
 
 - **Fase 0-3 (Completadas)**
-- **Fase 4: Abriendo las Puertas (La Comunidad) (Siguiente)**
+- **Fase 4: Abriendo las Puertas (La Comunidad) (En curso)**
+    - **Sub-fase 4.1: Sistema de Autenticación (Siguiente)**
 - **Fase 5: Limpieza y Decoración Final**
