@@ -38,7 +38,21 @@
     "forgotPasswordSubtitle": "Enter your email address",
     "forgotPasswordInstructions": "We will send you instructions to reset your password",
     "sendInstructionsButton": "Send Instructions",
-    "appTitle": "Insect Identifier"
+    "appTitle": "Insect Identifier",
+    "alerts": {
+      "errorTitle": "Error",
+      "successTitle": "Success",
+      "fillAllFields": "Please fill in all fields.",
+      "passwordsDoNotMatch": "The passwords do not match.",
+      "mustAcceptTerms": "You must accept the Terms and Conditions.",
+      "registrationError": "Registration Error",
+      "userAlreadyRegistered": "This email is already in use. Please sign in.",
+      "registrationSuccessTitle": "Registration Successful",
+      "registrationSuccessMessage": "A confirmation email has been sent. Please check your inbox.",
+      "loginErrorTitle": "Login Error",
+      "checkYourEmailTitle": "Check your email",
+      "passwordResetInstructions": "Instructions to reset your password have been sent to your email."
+    }
   },
   "common": {
     "skip": "Skip",

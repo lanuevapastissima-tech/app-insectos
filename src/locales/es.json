@@ -38,7 +38,21 @@
     "forgotPasswordSubtitle": "Ingresa tu correo electrónico",
     "forgotPasswordInstructions": "Te enviaremos instrucciones para restablecer tu contraseña",
     "sendInstructionsButton": "Enviar instrucciones",
-    "appTitle": "Identificador de Insectos"
+    "appTitle": "Identificador de Insectos",
+    "alerts": {
+      "errorTitle": "Error",
+      "successTitle": "Éxito",
+      "fillAllFields": "Por favor, completa todos los campos.",
+      "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+      "mustAcceptTerms": "Debes aceptar los Términos y Condiciones.",
+      "registrationError": "Error en el registro",
+      "userAlreadyRegistered": "Este correo electrónico ya está en uso. Por favor, inicia sesión.",
+      "registrationSuccessTitle": "Registro exitoso",
+      "registrationSuccessMessage": "Se ha enviado un correo de confirmación. Por favor, revisa tu bandeja de entrada.",
+      "loginErrorTitle": "Error al iniciar sesión",
+      "checkYourEmailTitle": "Revisa tu correo",
+      "passwordResetInstructions": "Se han enviado las instrucciones para restablecer tu contraseña a tu correo electrónico."
+    }
   },
   "common": {
     "skip": "Saltar",

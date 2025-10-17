@@ -24,13 +24,13 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     if (loading) return;
     if (!username || !email || !password || !confirmPassword) {
-      return Alert.alert('Error', 'Por favor, completa todos los campos.');
+      return Alert.alert(t('auth.alerts.errorTitle'), t('auth.alerts.fillAllFields'));
     }
     if (password !== confirmPassword) {
-      return Alert.alert('Error', 'Las contraseñas no coinciden.');
+      return Alert.alert(t('auth.alerts.errorTitle'), t('auth.alerts.passwordsDoNotMatch'));
     }
     if (!agreedToTerms) {
-      return Alert.alert('Error', 'Debes aceptar los Términos y Condiciones.');
+      return Alert.alert(t('auth.alerts.errorTitle'), t('auth.alerts.mustAcceptTerms'));
     }
 
     setLoading(true);
@@ -45,12 +45,12 @@ export default function RegisterScreen() {
     });
 
     if (error) {
-      Alert.alert('Error en el registro', error.message);
+      Alert.alert(t('auth.alerts.registrationError'), error.message);
     } else if (data.user && data.user.identities && data.user.identities.length === 0) {
-        Alert.alert('Usuario ya registrado', 'Este correo electrónico ya está en uso. Por favor, inicia sesión.');
+        Alert.alert(t('auth.alerts.userAlreadyRegistered'), t('auth.alerts.userAlreadyRegistered'));
     } else {
-      Alert.alert('Registro exitoso', 'Se ha enviado un correo de confirmación. Por favor, revisa tu bandeja de entrada.');
-      // La navegación se manejará automáticamente por el listener en App.js
+      Alert.alert(t('auth.alerts.registrationSuccessTitle'), t('auth.alerts.registrationSuccessMessage'));
+      navigation.navigate('Login');
     }
     setLoading(false);
   };
