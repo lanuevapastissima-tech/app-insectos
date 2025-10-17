@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StatusBar, StyleSheet, Image, FlatList } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Pressable, StatusBar, StyleSheet, Image, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
@@ -34,7 +34,13 @@ const CollectionItem = ({ item, navigation }) => {
     : '';
 
   return (
-    <TouchableOpacity style={styles.itemContainer} onPress={handlePress}>
+    <Pressable 
+      style={({ pressed }) => [
+        styles.itemContainer,
+        { transform: [{ scale: pressed ? 0.98 : 1 }] }
+      ]} 
+      onPress={handlePress}
+    >
       <View style={styles.itemContent}>
         <Image source={{ uri: item.imageUri }} style={styles.itemImage} />
         <View style={styles.itemTextContainer}>
@@ -46,13 +52,73 @@ const CollectionItem = ({ item, navigation }) => {
       <View style={styles.itemRiskIndicatorContainer}>
           <View style={[styles.itemRiskIndicator, { backgroundColor: riskColor }]} />
       </View>
-    </TouchableOpacity>
+    </Pressable>
+  );
+};
+
+const RiskFilterMenu = ({ onSelect, onClose }) => {
+  const options = ['Todos', 'Alto', 'Medio', 'Bajo'];
+  return (
+    <View style={styles.filterMenu}>
+      {options.map(option => (
+        <TouchableOpacity 
+          key={option} 
+          style={styles.filterMenuOption}
+          onPress={() => {
+            onSelect(option.toLowerCase());
+            onClose();
+          }}
+        >
+          <Text style={styles.filterMenuText}>{option}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+
+const DateFilterMenu = ({ onSelect, onClose }) => {
+  const options = {
+    'any': 'Cualquier fecha',
+    'today': 'Hoy',
+    'last7': 'Últimos 7 días',
+    'last30': 'Últimos 30 días'
+  };
+
+  return (
+    <View style={styles.filterMenu}>
+      {Object.entries(options).map(([key, label]) => (
+        <TouchableOpacity 
+          key={key} 
+          style={styles.filterMenuOption}
+          onPress={() => {
+            onSelect(key);
+            onClose();
+          }}
+        >
+          <Text style={styles.filterMenuText}>{label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
   );
 };
 
 export default function CollectionsScreen({ navigation }) {
   const [collections, setCollections] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredCollections, setFilteredCollections] = useState([]);
+  const [riskFilter, setRiskFilter] = useState('todos');
+  const [isRiskMenuVisible, setRiskMenuVisible] = useState(false);
+  const [dateFilter, setDateFilter] = useState('any');
+  const [isDateMenuVisible, setDateMenuVisible] = useState(false);
 
+  const dateFilterLabels = {
+    'any': 'Cualquier fecha',
+    'today': 'Hoy',
+    'last7': 'Últimos 7 días',
+    'last30': 'Últimos 30 días'
+  };
+
+  // Carga inicial de datos
   useFocusEffect(
     useCallback(() => {
       const loadCollections = async () => {
@@ -63,6 +129,50 @@ export default function CollectionsScreen({ navigation }) {
       loadCollections();
     }, [])
   );
+
+  // Efecto para filtrar la lista
+  useEffect(() => {
+    let filtered = collections.filter(item => 
+      item.nombreComun?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    if (riskFilter !== 'todos') {
+      filtered = filtered.filter(item => {
+        const risk = item.peligrosidadHumanos?.toLowerCase();
+        if (riskFilter === 'bajo') {
+          return risk !== 'alto' && risk !== 'medio';
+        }
+        return risk === riskFilter;
+      });
+    }
+
+    if (dateFilter !== 'any') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      let startDate;
+      if (dateFilter === 'today') {
+        startDate = today;
+      } else if (dateFilter === 'last7') {
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - 6);
+      } else if (dateFilter === 'last30') {
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - 29);
+      }
+
+      if (startDate) {
+        filtered = filtered.filter(item => {
+          if (!item.date || isNaN(new Date(item.date))) return false;
+          const itemDate = new Date(item.date);
+          const itemDay = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate());
+          return itemDay >= startDate && itemDay <= today;
+        });
+      }
+    }
+
+    setFilteredCollections(filtered);
+  }, [searchQuery, collections, riskFilter, dateFilter]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -75,24 +185,58 @@ export default function CollectionsScreen({ navigation }) {
       <View style={styles.searchContainer}>
         <View style={styles.searchInputWrapper}>
             <View style={styles.searchIconContainer}><SearchIcon /></View>
-            <TextInput placeholder="Buscar en tus colecciones..." style={styles.searchInput} placeholderTextColor="#638863" />
+            <TextInput 
+                placeholder="Buscar en tus colecciones..." 
+                style={styles.searchInput} 
+                placeholderTextColor="#638863"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+            />
         </View>
       </View>
 
       <View style={styles.filtersContainer}>
-        <FilterButton label="Riesgo" />
-        <FilterButton label="Fecha" />
+        <View>
+          <TouchableOpacity style={styles.filterButton} onPress={() => setRiskMenuVisible(!isRiskMenuVisible)}>
+            <Text style={styles.filterButtonText}>Riesgo: {riskFilter.charAt(0).toUpperCase() + riskFilter.slice(1)}</Text>
+            <CaretDownIcon />
+          </TouchableOpacity>
+          {isRiskMenuVisible && (
+            <RiskFilterMenu 
+              onSelect={(risk) => {
+                setRiskFilter(risk);
+                setRiskMenuVisible(false);
+              }}
+              onClose={() => setRiskMenuVisible(false)}
+            />
+          )}
+        </View>
+        <View>
+          <TouchableOpacity style={styles.filterButton} onPress={() => setDateMenuVisible(!isDateMenuVisible)}>
+            <Text style={styles.filterButtonText}>{dateFilterLabels[dateFilter]}</Text>
+            <CaretDownIcon />
+          </TouchableOpacity>
+          {isDateMenuVisible && (
+            <DateFilterMenu 
+              onSelect={(date) => {
+                setDateFilter(date);
+                setDateMenuVisible(false);
+              }}
+              onClose={() => setDateMenuVisible(false)}
+            />
+          )}
+        </View>
       </View>
 
       <FlatList
-        data={collections}
+        data={filteredCollections}
         renderItem={({ item }) => <CollectionItem item={item} navigation={navigation} />}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContentContainer}
         ListEmptyComponent={() => (
             <View style={styles.emptyListContainer}>
-                <Text style={styles.emptyListText}>Tu colección está vacía.</Text>
-                <Text style={styles.emptyListSubText}>¡Usa la cámara para identificar y guardar tu primer insecto!</Text>
+                <Text style={styles.emptyListText}>{searchQuery || riskFilter !== 'todos' || dateFilter !== 'any' ? 'No hay resultados' : 'Tu colección está vacía.'}</Text>
+                <Text style={styles.emptyListSubText}>{searchQuery || riskFilter !== 'todos' || dateFilter !== 'any' ? 'Intenta con otros filtros o búsqueda.' : '¡Usa la cámara para identificar y guardar tu primer insecto!'}</Text>
             </View>
         )}
       />
@@ -110,10 +254,10 @@ const styles = StyleSheet.create({
   searchIconContainer: { paddingLeft: 16 },
   searchInput: { flex: 1, height: '100%', paddingHorizontal: 8, color: '#111811', fontSize: 16 },
   filtersContainer: { flexDirection: 'row', gap: 12, paddingHorizontal: 12, paddingBottom: 8 },
-  filterButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0f4f0', borderRadius: 8, paddingLeft: 16, paddingRight: 8, height: 32 },
+  filterButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f0f4f0', borderRadius: 8, paddingLeft: 16, paddingRight: 8, height: 32, minWidth: 170 },
   filterButtonText: { color: '#111811', fontSize: 14, fontWeight: '500', marginRight: 8 },
-  listContentContainer: { paddingTop: 8, flexGrow: 1 },
-  itemContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', paddingHorizontal: 16, minHeight: 72, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f4f0' },
+  listContentContainer: { paddingVertical: 4, flexGrow: 1 },
+  itemContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', padding: 12, minHeight: 72, marginVertical: 4, marginHorizontal: 16, borderWidth: 1, borderColor: '#638863', borderRadius: 12 },
   itemContent: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   itemImage: { width: 56, height: 56, borderRadius: 8, backgroundColor: '#f0f4f0' },
   itemTextContainer: { justifyContent: 'center' },
@@ -125,4 +269,7 @@ const styles = StyleSheet.create({
   emptyListContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
   emptyListText: { fontSize: 18, fontWeight: 'bold', color: '#111811' },
   emptyListSubText: { fontSize: 14, color: '#638863', textAlign: 'center', marginTop: 8 },
+  filterMenu: { position: 'absolute', top: 36, left: 0, backgroundColor: 'white', borderRadius: 8, borderWidth: 1, borderColor: '#f0f4f0', elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, zIndex: 10 },
+  filterMenuOption: { paddingVertical: 10, paddingHorizontal: 20 },
+  filterMenuText: { fontSize: 14, color: '#111811' },
 });

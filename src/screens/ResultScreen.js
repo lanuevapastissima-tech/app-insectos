@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { saveIdentification, deleteIdentification, updateIdentification } from '../services/StorageService';
 
-const SERVER_IP = '192.168.100.145';
+const SERVER_IP = '192.168.100.126';
 const ASK_URL = `http://${SERVER_IP}:3000/api/ask`;
 
 const ArrowLeftIcon = () => <Svg width="24px" height="24px" fill="#111811" viewBox="0 0 256 256"><Path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></Path></Svg>;
@@ -28,28 +28,36 @@ const SimilarSpeciesCard = ({ name, scientificName, imageUrl }) => (
 
 export default function ResultScreen({ route, navigation }) {
     const { analysis, imageUri } = route.params || {};
-    const [data, setData] = useState(null);
+
+    // Inicialización de estado robusta para evitar "parpadeos" de la UI.
+    const [data, setData] = useState(() => {
+        if (analysis) {
+            try {
+                return { ...JSON.parse(analysis), imageUri };
+            } catch (e) {
+                console.error("Error al parsear JSON inicial en ResultScreen:", e);
+                return { nombreComun: "Error de Datos", descripcion: "No se pudo leer el análisis." };
+            }
+        }
+        return null;
+    });
+
     const [isModalVisible, setModalVisible] = useState(false);
-    const [question, setQuestion] = useState('');
+    const [question, setQuestion] = useState(() => data?.userQuestion || '');
+    const [iaAnswer, setIaAnswer] = useState(() => data?.iaAnswer || '');
     const [isAskingIA, setIsAskingIA] = useState(false);
-    const [iaAnswer, setIaAnswer] = useState('');
 
     useEffect(() => {
+        // Este efecto ahora solo sirve como una sincronización secundaria si los parámetros
+        // llegaran a cambiar mientras la pantalla está montada.
         if (analysis) {
             try {
                 const parsedData = JSON.parse(analysis);
-                setData({ ...parsedData, imageUri });
-
-                if (parsedData.userQuestion && parsedData.iaAnswer) {
-                    setQuestion(parsedData.userQuestion);
-                    setIaAnswer(parsedData.iaAnswer);
-                } else {
-                    setIaAnswer('');
-                    setQuestion('');
-                }
+                // Se usa una función en setData para asegurar que no sobreescribimos estados intermedios,
+                // como una conversación de IA ya existente, con los datos iniciales.
+                setData(currentState => ({ ...parsedData, imageUri, ...currentState }));
             } catch (e) {
-                console.error("Error al parsear JSON en ResultScreen:", e);
-                setData({ nombreComun: "Error de Datos", descripcion: "No se pudo leer el análisis." });
+                console.error("Error al parsear JSON en ResultScreen (effect):", e);
             }
         }
     }, [analysis, imageUri]);

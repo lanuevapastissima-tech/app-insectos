@@ -7,7 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 // --- CONFIGURACIÓN ---
-const SERVER_IP = '192.168.100.145'; // La IP de tu PC
+const SERVER_IP = '192.168.100.126'; // La IP de tu PC
 const SERVER_URL = `http://${SERVER_IP}:3000/api/identify`;
 
 // --- Iconos ---
