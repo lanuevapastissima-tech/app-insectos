@@ -36,7 +36,7 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex_1}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Identificador de Insectos</Text>
+          <Text style={styles.headerTitle}>{t('auth.appTitle')}</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>

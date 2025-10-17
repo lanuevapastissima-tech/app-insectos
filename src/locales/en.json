@@ -37,7 +37,8 @@
     "forgotPasswordTitle": "Forgot My Password",
     "forgotPasswordSubtitle": "Enter your email address",
     "forgotPasswordInstructions": "We will send you instructions to reset your password",
-    "sendInstructionsButton": "Send Instructions"
+    "sendInstructionsButton": "Send Instructions",
+    "appTitle": "Insect Identifier"
   },
   "common": {
     "skip": "Skip",
