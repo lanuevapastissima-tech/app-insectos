@@ -51,7 +51,13 @@
       "registrationSuccessMessage": "Se ha enviado un correo de confirmación. Por favor, revisa tu bandeja de entrada.",
       "loginErrorTitle": "Error al iniciar sesión",
       "checkYourEmailTitle": "Revisa tu correo",
-      "passwordResetInstructions": "Se han enviado las instrucciones para restablecer tu contraseña a tu correo electrónico."
+      "passwordResetInstructions": "Se han enviado las instrucciones para restablecer tu contraseña a tu correo electrónico.",
+    "resetPasswordTitle": "Crear Nueva Contraseña",
+    "resetPasswordInstruction": "La nueva contraseña debe tener al menos 6 caracteres.",
+    "newPasswordPlaceholder": "Nueva Contraseña",
+    "confirmNewPasswordPlaceholder": "Confirmar Nueva Contraseña",
+    "resetPasswordButton": "Restablecer Contraseña",
+    "passwordUpdatedSuccess": "¡Contraseña actualizada con éxito!"
     }
   },
   "common": {

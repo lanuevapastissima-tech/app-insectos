@@ -51,7 +51,13 @@
       "registrationSuccessMessage": "A confirmation email has been sent. Please check your inbox.",
       "loginErrorTitle": "Login Error",
       "checkYourEmailTitle": "Check your email",
-      "passwordResetInstructions": "Instructions to reset your password have been sent to your email."
+      "passwordResetInstructions": "Instructions to reset your password have been sent to your email.",
+    "resetPasswordTitle": "Create New Password",
+    "resetPasswordInstruction": "The new password must be at least 6 characters long.",
+    "newPasswordPlaceholder": "New Password",
+    "confirmNewPasswordPlaceholder": "Confirm New Password",
+    "resetPasswordButton": "Reset Password",
+    "passwordUpdatedSuccess": "Password updated successfully!"
     }
   },
   "common": {

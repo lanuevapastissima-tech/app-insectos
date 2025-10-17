@@ -17,9 +17,20 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
+import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+// Configuración de Deep Linking
+const linking = {
+  prefixes: ['io.supabase.insectapp://'],
+  config: {
+    screens: {
+      ResetPassword: 'reset-password',
+    },
+  },
+};
 
 // --- Iconos para la barra de navegación ---
 const HomeIcon = ({ color }) => <Svg width="24px" height="24px" fill={color} viewBox="0 0 256 256"><Path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></Path></Svg>;
@@ -61,12 +72,14 @@ function AuthStack() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
     </Stack.Navigator>
   );
 }
 
 export default function App() {
   const [session, setSession] = useState(null);
+  const navigationRef = React.useRef();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -74,14 +87,22 @@ export default function App() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      if (_event === 'PASSWORD_RECOVERY') {
+        // No cambies la sesión, solo navega a la pantalla de reseteo.
+        // El token de recuperación está en la URL que abrió la app.
+        if (navigationRef.current) {
+          navigationRef.current.navigate('ResetPassword');
+        }
+      } else {
+        setSession(session);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking} ref={navigationRef}>
       {session && session.user ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
